@@ -29,7 +29,7 @@ def make_consumer_report(job_state: ConsumerReportJobState):
         job_state.current_task = f"Creating Product Report for {product}"
 
         raw_product_report = job_state.text_model.simple_call(tasks.RESEARCH_PRODUCT,rating_request)
-        parsed_product_report = parse_chat_gpt_json(raw_product_report)
+        parsed_product_report = parse_chat_gpt_json(raw_product_report, job_state.text_model)
         
         product_reports.append(parsed_product_report)
         job_state.product_reports = product_reports
