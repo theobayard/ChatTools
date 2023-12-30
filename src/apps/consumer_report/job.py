@@ -1,32 +1,49 @@
 import json
+from src.job.job_state import JobState
 from src.apps.consumer_report import tasks
 from src.task.text_task import parse_chat_gpt_json
 
+class ConsumerReportJobState(JobState):
+    product_candidates: list[str]
+    catagories: str
+    product_reports: list[dict]
+    final_report: str
 
-def make_consumer_report(user_request: str):
-    product_candidates = tasks.FIND_BEST_PRODUCT_CANDIDATES_TASK.run(user_request)
+def make_consumer_report(job_state: ConsumerReportJobState):
+    job_state.current_task = "Find Product Candidates"
+    product_candidates = job_state.text_model.simple_call(tasks.FIND_BEST_PRODUCT_CANDIDATES_TASK,
+        job_state.user_prompt)
     product_candidates = product_candidates.split('|')
-    print(f'Product Candidates Found: {product_candidates}')
+    job_state.product_candidates = product_candidates
 
-    catagories = tasks.CREATE_RATING_CATAGORIES.run(user_request)
-    print(f"Product Catagories Found: {catagories}")
+    job_state.current_task = "Find Rating Catagories"
+    catagories = job_state.text_model.simple_call(tasks.CREATE_RATING_CATAGORIES,
+        job_state.user_prompt)
+    job_state.catagories = catagories
 
     rating_requests = [
-        create_rating_request(product, user_request, catagories) for product in product_candidates
+        create_rating_request(product, job_state.user_prompt, catagories) for product in product_candidates
     ]
-    product_reports = [
-        tasks.RESEARCH_PRODUCT.run(rating_request) for rating_request in rating_requests
-    ]
-    print(f"Product Reports Made: {product_reports}")
+    product_reports = []
+    for rating_request, product in zip(rating_requests, product_candidates):
+        job_state.current_task = f"Creating Product Report for {product}"
 
-    final_report_request = create_final_report_request(product_reports, user_request)
-    final_report = tasks.FINAL_RECOMMENDATION_AND_SUMMARY.run(str(final_report_request))
+        raw_product_report = job_state.text_model.simple_call(tasks.RESEARCH_PRODUCT,rating_request)
+        parsed_product_report = parse_chat_gpt_json(raw_product_report)
+        
+        product_reports.append(parsed_product_report)
+        job_state.product_reports = product_reports
 
-    return {
-        'user_request': user_request,
-        'product_reports': [parse_chat_gpt_json(product_report) for product_report in product_reports],
-        'final_report': final_report
+    job_state.current_task = "Making Final Report"
+    final_report_request = {
+        'user_request': job_state.user_prompt,
+        'product_reports': product_reports,
     }
+    final_report = job_state.text_model.simple_call(tasks.FINAL_RECOMMENDATION_AND_SUMMARY,
+        str(final_report_request))
+    job_state.final_report = final_report
+
+    return job_state
 
 
 def create_rating_request(product, user_request, catagories):
@@ -37,9 +54,3 @@ def create_rating_request(product, user_request, catagories):
 
         Catagories: "{catagories}"
         """
-
-def create_final_report_request(product_reports: list[str], user_request: str):
-    return {
-        'user_request': user_request,
-        'product_reports': product_reports,
-    }
