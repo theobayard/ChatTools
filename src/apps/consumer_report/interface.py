@@ -2,9 +2,9 @@ import graphviz
 from openai import OpenAI
 import streamlit as st
 
-from .job_update_handler import job_update_handler
-from ...models import TextModel, CHAT_DEFAULT
-from .job import ConsumerReportJobState, make_consumer_report
+from src.apps.consumer_report.job_update_handler import job_update_handler
+from src.models import TextModel, CHAT_DEFAULT
+from src.apps.consumer_report.job import ConsumerReportJobState, make_consumer_report
 
 with st.sidebar:
     openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")

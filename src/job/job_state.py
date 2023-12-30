@@ -3,7 +3,7 @@ from typing import Any, Callable
 from openai import OpenAI
 
 
-from ..models import CHAT_DEFAULT, TextModel
+from src.models import CHAT_DEFAULT, TextModel
 
 @dataclass
 class JobState:

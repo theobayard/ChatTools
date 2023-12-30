@@ -1,5 +1,5 @@
 import json
-from ..models import CHAT_DEFAULT
+from src.models import CHAT_DEFAULT
 
     
 def parse_chat_gpt_json(hopefully_valid_json_string, model = CHAT_DEFAULT, max_num_tries = 3):
