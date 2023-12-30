@@ -1,10 +1,18 @@
-from dataclasses import dataclass
-from openai import OpenAI
+from dataclasses import dataclass, field
+from openai import OpenAI, OpenAIError
+
+def safe_init_open_ai():
+    try:
+        return OpenAI()
+    except OpenAIError:
+        # This happens when deployed to streamlit cloud as no api key will be set
+        # but users set their own before they can call and models so it is okay
+        return None
 
 @dataclass
 class Model():
     tag: str
-    client: OpenAI = OpenAI()
+    client: OpenAI | None = safe_init_open_ai()
 
 @dataclass
 class TextModel(Model):
