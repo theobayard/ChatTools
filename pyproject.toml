@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "chattools"
+version = "0.1.0"
+description = "Some ChatGPT Tools I've Made"
+authors = ["theobayard <theobayarddevolo@gmail.com>"]
+license = "GNU GENERAL PUBLIC LICENSE"
+readme = "README.md"
+packages = [
+    { include = "src", from = "." }
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+streamlit = "^1.29.0"
+openai = "^1.6.1"
+watchdog = "^3.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
