@@ -1,4 +1,3 @@
-import graphviz
 from openai import OpenAI
 import streamlit as st
 
@@ -23,7 +22,6 @@ if user_request.strip() == "" or not openai_api_key:
 
 consumer_report_job_state = None
 if user_request:
-    graph = graphviz.Digraph()
     consumer_report_job_state = ConsumerReportJobState(
         user_prompt=user_request,
         text_model=TextModel(
