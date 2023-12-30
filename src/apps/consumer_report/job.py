@@ -1,7 +1,7 @@
 import json
-from src.job.job_state import JobState
-from src.apps.consumer_report import tasks
-from src.task.text_task import parse_chat_gpt_json
+from ...job.job_state import JobState
+from . import tasks
+from ...task.text_task import parse_chat_gpt_json
 
 class ConsumerReportJobState(JobState):
     product_candidates: list[str]
